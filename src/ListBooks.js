@@ -12,7 +12,10 @@ class ListBooks extends React.Component {
 	render() {
 		const { books, updateShelf } = this.props
 
+		// copy books to variable for display purposes
 		let showingBooks = books
+		
+		// sort books by title
 		showingBooks.sort(sortBy('title'))
 
 		return (
@@ -36,7 +39,7 @@ class ListBooks extends React.Component {
 							{
 								/* Check for authors and render each on separate line if exist*/
 								book.authors && book.authors.map((author, index) => (
-									<div className="book-authors" key={index}>{author}</div>
+									<div className='book-authors' key={index}>{author}</div>
 								))
 							}
 						</div>

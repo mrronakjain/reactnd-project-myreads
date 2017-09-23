@@ -6,11 +6,10 @@ import SearchBooks from './SearchBooks'
 import ListBooks from './ListBooks'
 
 class BooksApp extends React.Component {
-	state = {
-		books: []
-	}
+	state = { books: [] }
 
 	componentDidMount() {
+		// get books on load
 		BooksAPI.getAll().then((books) => {
 			this.setState({ books })
 		})
@@ -26,7 +25,7 @@ class BooksApp extends React.Component {
 			var updatedBooks = this.state.books.filter(b => b.id !== book.id)
 
 			// add book to array and set new state
-			updatedBooks.push(book);
+			updatedBooks.push(book)
 			this.setState({ books: updatedBooks })
 		})
 	}
@@ -48,11 +47,12 @@ class BooksApp extends React.Component {
 						</div>
 						<div className='list-books-content'>
 							{shelfTypes.map((shelf, index) => {
+								/* filter books based on their shelf */
 								const shelfBooks = books.filter(book => book.shelf === shelf.type)
 								return (
-									<div className="bookshelf" key={index}>
-										<h2 className="bookshelf-title">{shelf.title}</h2>
-										<div className="bookshelf-books">
+									<div className='bookshelf' key={index}>
+										<h2 className='bookshelf-title'>{shelf.title}</h2>
+										<div className='bookshelf-books'>
 											<ListBooks
 												books={shelfBooks}
 												updateShelf={this.updateShelf}
