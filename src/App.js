@@ -1,69 +1,75 @@
 import React from 'react'
-import { Route } from 'react-router-dom'
+import { Link, Route } from 'react-router-dom'
 import * as BooksAPI from './BooksAPI'
 import './App.css'
+import SearchBooks from './SearchBooks'
 import ListBooks from './ListBooks'
 
 class BooksApp extends React.Component {
-  state = {
-    books: []
-  }
+	state = {
+		books: []
+	}
 
-  componentDidMount() {
-    BooksAPI.getAll().then((books) => {
-      this.setState({ books })
-    })
-  }
+	componentDidMount() {
+		BooksAPI.getAll().then((books) => {
+			this.setState({ books })
+		})
+	}
 
-  moveBookToShelf = (shelf, book) => {
-    BooksAPI.update(book, shelf).then((result) => {
-      this.setState({
-        books: this.state.books.map((b) => {
-          if (b.id === book.id) {
-            b.shelf = shelf
-          }
-          return b
-        })
-      })
-    })
-  }
+	updateShelf = (shelf, book) => {
+		BooksAPI.update(book, shelf).then(response => {
 
-  render() {
-    const { books } = this.state;
-    return (
-      <div className='app'>
-        <Route exact path='/' render={() => (
-          <div className='list-books'>
-            <div className='list-books-title'>
-              <h1>MyReads</h1>
-            </div>
-            <div className='list-books-content'>
-              <div>
-                <div className='bookshelf'>
-                  <h2 className='bookshelf-title'>Currently Reading</h2>
-                  <div className='bookshelf-books'>
-                    <ListBooks books={books} onMoveToShelf={this.moveBookToShelf} shelf='currentlyReading' />
-                  </div>
-                </div>
-                <div className='bookshelf'>
-                  <h2 className='bookshelf-title'>Want to Read</h2>
-                  <div className='bookshelf-books'>
-                    <ListBooks books={books} onMoveToShelf={this.moveBookToShelf} shelf='wantToRead' />
-                  </div>
-                </div>
-                <div className='bookshelf'>
-                  <h2 className='bookshelf-title'>Read</h2>
-                  <div className='bookshelf-books'>
-                    <ListBooks books={books} onMoveToShelf={this.moveBookToShelf} shelf='read' />
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        )} />
-      </div>
-    )
-  }
+			// set shelf for new or updated book
+			book.shelf = shelf
+
+			// get list of books without updated or new book
+			var updatedBooks = this.state.books.filter(b => b.id !== book.id)
+
+			// add book to array and set new state
+			updatedBooks.push(book);
+			this.setState({ books: updatedBooks })
+		})
+	}
+
+	render() {
+		const { books } = this.state
+		const shelfTypes = [{ type: 'currentlyReading', title: 'Currently Reading' },
+		{ type: 'wantToRead', title: 'Want to Read' },
+		{ type: 'read', title: 'Read' }]
+		return (
+			<div className='app'>
+				<Route path='/search' render={() => (
+					<SearchBooks shelfBooks={books} updateShelf={this.updateShelf} />
+				)} />
+				<Route exact path='/' render={() => (
+					<div className='list-books'>
+						<div className='list-books-title'>
+							<h1>MyReads</h1>
+						</div>
+						<div className='list-books-content'>
+							{shelfTypes.map((shelf, index) => {
+								const shelfBooks = books.filter(book => book.shelf === shelf.type)
+								return (
+									<div className="bookshelf" key={index}>
+										<h2 className="bookshelf-title">{shelf.title}</h2>
+										<div className="bookshelf-books">
+											<ListBooks
+												books={shelfBooks}
+												updateShelf={this.updateShelf}
+											/>
+										</div>
+									</div>
+								)
+							})}
+						</div>
+						<div className='open-search'>
+							<Link to='/search'>Add a book</Link>
+						</div>
+					</div>
+				)} />
+			</div>
+		)
+	}
 }
 
 export default BooksApp
